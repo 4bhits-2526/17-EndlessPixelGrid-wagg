@@ -1,13 +1,18 @@
+using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class InputM : MonoBehaviour
 {
-    [Header("Input Line")]
-    public Image[] inputLineImages = new Image[7];
+    [Header("Grid Panel (10x7)")]
+    public Image[] gridImages;
+    public Transform gridPanel;
 
-    [Header("Key Bindings (Index = Pixel)")]
-    public KeyCode[] inputKeys = new KeyCode[7];
+    [Header("Input Line Panel (7)")]
+    public Image[] inputLineImages = new Image[Datamodel.Columns];
+
+    [Header("Key Bindings (Index = Spalte)")]
+    public KeyCode[] inputKeys = new KeyCode[Datamodel.Columns];
 
     [Header("Colors")]
     public Color whiteColor = Color.white;
@@ -15,23 +20,34 @@ public class InputM : MonoBehaviour
 
     private Datamodel model;
 
-    void Awake()
-{
-    model = GetComponent<Datamodel>();
 
-    if (model == null)
+
+    private void Awake()
     {
-        Debug.LogError("Datamodel fehlt auf diesem GameObject!");
-        return;
+        gridImages = gridPanel.GetComponentsInChildren<Image>();
+        //Debug.Log("Anzahl Grid Images: " + gridImages.Length);
+        model = GetComponent<Datamodel>();
+        if (model == null)
+        {
+           // Debug.LogError("Datamodel fehlt auf diesem GameObject!");
+            return;
+        }
+
+        RefreshInputLine();
+        RefreshGridUI();
     }
 
-    RefreshInputLine();
-}
-
-
-    void Update()
+    private void Update()
     {
         HandleInput();
+
+        
+        if (Input.GetKeyDown(KeyCode.D))
+        {
+            model.ShiftGridAndInsertInput();
+            RefreshGridUI();      
+            RefreshInputLine();   
+        }
     }
 
     private void HandleInput()
@@ -40,23 +56,30 @@ public class InputM : MonoBehaviour
         {
             if (Input.GetKeyDown(inputKeys[i]))
             {
-                ToggleInputPixel(i);
+                model.InputLine[i] = !model.InputLine[i];
+                RefreshInputLine();
             }
         }
     }
 
-    private void ToggleInputPixel(int index)
-    {
-        model.InputLine[index] = !model.InputLine[index];
-        RefreshInputLine();
-    }
 
     private void RefreshInputLine()
     {
-        for (int i = 0; i < model.InputLine.Length; i++)
+        for (int c = 0; c < model.InputLine.Length; c++)
         {
-            inputLineImages[i].color =
-                model.InputLine[i] ? whiteColor : blackColor;
+            inputLineImages[c].color = model.InputLine[c] ? whiteColor : blackColor;
+        }
+    }
+
+    private void RefreshGridUI()
+    {
+        for (int r = 0; r < Datamodel.Rows; r++)
+        {
+            for (int c = 0; c < Datamodel.Columns; c++)
+            {
+                int index = r * Datamodel.Columns + c;
+                gridImages[index].color = model.Grid[r, c] ? whiteColor : blackColor;
+            }
         }
     }
 }

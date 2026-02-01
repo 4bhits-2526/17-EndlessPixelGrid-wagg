@@ -2,8 +2,8 @@ using UnityEngine;
 
 public class Datamodel : MonoBehaviour
 {
-    public bool[,] Grid { get; private set; }
-    public bool[] InputLine { get; private set; }
+    public bool[,] Grid { get; private set; }       // 10x7 Grid
+    public bool[] InputLine { get; private set; }   // 7 Spalten InputLine
 
     public const int Rows = 10;
     public const int Columns = 7;
@@ -12,21 +12,30 @@ public class Datamodel : MonoBehaviour
     {
         Grid = new bool[Rows, Columns];
         InputLine = new bool[Columns];
-
-        ClearGrid();
-        ClearInputLine();
     }
 
-    public void ClearGrid()
+
+    public void ShiftGridAndInsertInput()
     {
-        for (int r = 0; r < Rows; r++)
+
+        for (int r = 0; r < Rows - 1; r++)
+        {
             for (int c = 0; c < Columns; c++)
-                Grid[r, c] = false;
-    }
+            {
+                Grid[r, c] = Grid[r + 1, c];
+            }
+        }
 
-    public void ClearInputLine()
-    {
-        for (int i = 0; i < Columns; i++)
-            InputLine[i] = false;
+        for (int c = 0; c < Columns; c++)
+        {
+            Grid[Rows - 1, c] = InputLine[c];
+        }
+
+        for (int c = 0; c < Columns; c++)
+        {
+            InputLine[c] = false;
+        }
+
+        Debug.Log("Shift durchgeführt. Unterste Zeile nach Einfügen: " + Grid[Rows - 1, 0]);
     }
 }
