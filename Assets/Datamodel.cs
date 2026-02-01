@@ -8,12 +8,11 @@ public class Datamodel : MonoBehaviour
     public const int Rows = 10;
     public const int Columns = 7;
 
-    public void GridModel()
+    private void Awake()
     {
         Grid = new bool[Rows, Columns];
         InputLine = new bool[Columns];
 
-        // Initialzustand
         ClearGrid();
         ClearInputLine();
     }
